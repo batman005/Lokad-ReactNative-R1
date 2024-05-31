@@ -11,18 +11,22 @@ export default function App() {
     //defined two states product & search in the component
     const [products, setProduct] = useState([]);
     const [search, setSearch] = useState('');
-
+    //added loading and error state
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    
     //here i am handling the data fetching with axios
     const getProducts = async () => {
         try {
+            setLoading(true);
             const response = await axios.get('https://dummyjson.com/products');
-            setProduct(response.data.products); // this callback function will fill the empty product state we havve defined above
-            console.log();
+            setProduct(response.data.products);
         } catch (error) {
-            console.log(error);
+            setError(error);
+        } finally {
+            setLoading(false);
         }
     }
-
 
     // i am performing side effect here
     useEffect(() => {
@@ -35,10 +39,10 @@ export default function App() {
             <View style={styles.cardContainer}>
                 <Image style={styles.image} source={{ uri: item.images[0] }} />
                 <View style={styles.textContainer}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text>Category:{item.category}</Text>
-                <Text>StockAvailable:{item.stock}</Text>
-                <Text>Rating:{item.rating}</Text>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text>Category:{item.category}</Text>
+                    <Text>StockAvailable:{item.stock}</Text>
+                    <Text>Rating:{item.rating}</Text>
                 </View>
             </View>
         )
@@ -54,19 +58,20 @@ export default function App() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'red' }}>
-        <View style={styles.container}>
-            <Text style={styles.mainTitle}>Products</Text>
-            <TextInput placeholder='Search Product' style={styles.searchInput} value={search} onChangeText={text => setSearch(text)} />
-            {filteredProduct.length > 0 ? (
-                <FlatList data={filteredProduct} renderItem={renderItem} keyExtractor={item => item.id.toString()} />
-
-            ) : search ? (
-                <Text>No products found</Text>
-            ) :(
-                <ActivityIndicator size="large" color="#0000ff" />
-            )}
-            <StatusBar style="auto" />
-        </View>
+            <View style={styles.container}>
+                <Text style={styles.mainTitle}>Products</Text>
+                <TextInput placeholder='Search Product' style={styles.searchInput} value={search} onChangeText={text => setSearch(text)} />
+                {error ? (
+                    <Text>Error: {error.message}</Text>
+                ) : loading ? (
+                    <ActivityIndicator size="large" color="#0000ff" />
+                ) : filteredProduct.length > 0 ? (
+                    <FlatList data={filteredProduct} renderItem={renderItem} keyExtractor={item => item.id.toString()} />
+                ) : search ? (
+                    <Text>No products found</Text>
+                ) : null}
+                <StatusBar style="auto" />
+            </View>
         </SafeAreaView>
     );
 }
@@ -79,14 +84,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     searchInput: {
-            height: 40,
-            borderColor: 'gray',
-            borderWidth: 1,
-            padding: 10,
-            margin: 1,
+        height: 40,
+        borderColor: 'gray',
+        borderWidth: 1,
+        padding: 10,
+        margin: 1,
     },
     cardContainer: {
-        flexDirection:'row',
+        flexDirection: 'row',
         borderWidth: 5,
         padding: 10,
         margin: 10,
@@ -94,15 +99,15 @@ const styles = StyleSheet.create({
     },
     image: {
         width: 100,
-        height:100,
+        height: 100,
         marginTop: 10,
         marginRight: 10,
     },
-    title:{
+    title: {
         flexWrap: 'wrap',
-        fontWeight:'bold',
+        fontWeight: 'bold',
     },
-    mainTitle:{
-        fontWeight:'bold',
+    mainTitle: {
+        fontWeight: 'bold',
     }
 });
