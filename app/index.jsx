@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ActivityIndicator, Image, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FlatList } from 'react-native-web';
 
 
 
@@ -14,7 +13,7 @@ export default function App() {
     //added loading and error state
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    
+
     //here i am handling the data fetching with axios
     const getProducts = async () => {
         try {
@@ -57,12 +56,14 @@ export default function App() {
     }, [products, search]);
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'red' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#131413' }}>
             <View style={styles.container}>
                 <Text style={styles.mainTitle}>Products</Text>
                 <TextInput placeholder='Search Product' style={styles.searchInput} value={search} onChangeText={text => setSearch(text)} />
                 {error ? (
-                    <Text>Error: {error.message}</Text>
+                    <>
+                        <Text>Error: {error.message}</Text>
+                    </>
                 ) : loading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
                 ) : filteredProduct.length > 0 ? (
@@ -81,7 +82,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 20, 
     },
     searchInput: {
         height: 40,
@@ -91,7 +93,9 @@ const styles = StyleSheet.create({
         margin: 1,
     },
     cardContainer: {
+        flex: 1,
         flexDirection: 'row',
+        flexWrap: 'wrap', 
         borderWidth: 5,
         padding: 10,
         margin: 10,
