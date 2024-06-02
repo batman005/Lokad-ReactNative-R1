@@ -12,4 +12,10 @@ https://github.com/batman005/Lokad-ReactNative-R1/assets/51878340/e47da1b3-144b-
 # Error Page 
 ![Screen Shot 2024-05-31 at 17 23 26](https://github.com/batman005/Lokad-ReactNative-R1/assets/51878340/92ff3950-8901-43f6-a04c-0bc14a32ffe5)
 
+# Pull to Refresh Feature
+
+https://github.com/batman005/Lokad-ReactNative-R1/assets/51878340/477cc846-94ac-4de8-88f8-a0f028e9f3b9
+
+
+
 
