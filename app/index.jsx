@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, ActivityIndicator, Image, FlatList} from 'react-native';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { StyleSheet, Text, View, TextInput, ActivityIndicator, Image, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
@@ -13,17 +13,21 @@ export default function App() {
     //added loading and error state
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
 
     //here i am handling the data fetching with axios
     const getProducts = async () => {
+        setRefreshing(true);
         try {
             setLoading(true);
             const response = await axios.get('https://dummyjson.com/products');
             setProduct(response.data.products);
+            setRefreshing(false);
         } catch (error) {
             setError(error);
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     }
 
@@ -31,6 +35,13 @@ export default function App() {
     useEffect(() => {
         getProducts();
     }, []);
+
+
+    // Function to handle refresh
+    const handleRefresh = useCallback(() => {
+        getProducts(); 
+    }, []);
+
 
     //renderItem like card data and passing a prop of item 
     const renderItem = ({ item }) => {
@@ -59,18 +70,30 @@ export default function App() {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#131413' }}>
             <View style={styles.container}>
                 <Text style={styles.mainTitle}>Products</Text>
-                <TextInput placeholder='Search Product' style={styles.searchInput} value={search} onChangeText={text => setSearch(text)} />
-                {error ? (
-                    <>
-                        <Text>Error: {error.message}</Text>
-                    </>
-                ) : loading ? (
+                <TextInput
+                    placeholder='Search Product'
+                    style={styles.searchInput}
+                    value={search}
+                    onChangeText={text => setSearch(text)}
+                />
+                {loading ? (
                     <ActivityIndicator size="large" color="#0000ff" />
-                ) : filteredProduct.length > 0 ? (
-                    <FlatList data={filteredProduct} renderItem={renderItem} keyExtractor={item => item.id.toString()} />
-                ) : search ? (
-                    <Text>No products found</Text>
-                ) : null}
+                ) : (
+                    <FlatList
+                        data={filteredProduct}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id.toString()}
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                        ListEmptyComponent={
+                            error ? (
+                                <Text>Error: {error.message}</Text>
+                            ) : (
+                                <Text>No products found</Text>
+                            )
+                        }
+                    />
+                )}
                 <StatusBar style="auto" />
             </View>
         </SafeAreaView>
@@ -83,7 +106,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingTop: 20, 
+        paddingTop: 20,
     },
     searchInput: {
         height: 40,
@@ -95,7 +118,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         flex: 1,
         flexDirection: 'row',
-        flexWrap: 'wrap', 
+        flexWrap: 'wrap',
         borderWidth: 5,
         padding: 10,
         margin: 10,
